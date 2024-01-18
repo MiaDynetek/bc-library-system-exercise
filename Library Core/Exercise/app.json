@@ -1,0 +1,49 @@
+﻿{
+    "id":  "2bf1e32f-fc3e-4b0a-a288-678811099a7b",
+    "name":  "Exercise",
+    "publisher":  "Cronus International Ltd",
+    "version":  "1.0.0.0",
+    "brief":  "",
+    "description":  "",
+    "platform":  "1.0.0.0",
+    "application":  "23.0.0.0",
+    "runtime":  "12.0",
+    "logo":  "",
+    "url":  "",
+    "EULA":  "",
+    "privacyStatement":  "",
+    "help":  "",
+    "target":  "Cloud",
+    "screenshots":  [
+
+                    ],
+    "dependencies":  [
+
+                     ],
+    "idRanges":  [
+                     {
+                         "from":  50700,
+                         "to":  50749
+                     }
+                 ],
+    "features":  [
+                     "TranslationFile"
+                 ],
+    "resourceExposurePolicy":  {
+                                   "allowDebugging":  true,
+                                   "allowDownloadingSource":  true,
+                                   "includeSourceInSymbolFile":  true
+                               },
+    "source":  {
+
+               },
+    "build":  {
+                  "by":  "AL Language Extension,12.5.914975"
+              },
+    "internalsVisibleTo":  [
+
+                           ],
+    "keyVaultUrls":  [
+
+                     ]
+}
