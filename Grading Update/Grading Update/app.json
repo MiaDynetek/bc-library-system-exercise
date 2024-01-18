@@ -1,7 +1,7 @@
 {
   "id": "3f83f512-9397-4658-be67-9087ae539c4a",
   "name": "Grading Update",
-  "publisher": "Dynetek",
+  "publisher": "Cronus International Ltd",
   "version": "1.0.0.0",
   "brief": "",
   "description": "",
@@ -10,14 +10,21 @@
   "help": "",
   "url": "",
   "logo": "",
-  "dependencies": [],
+  "dependencies": [
+    {
+      "id":  "2bf1e32f-fc3e-4b0a-a288-678811099a7b",
+      "name":  "Exercise",
+      "publisher":  "Cronus International Ltd",
+      "version":  "1.0.0.0"
+  }
+  ],
   "screenshots": [],
   "platform": "1.0.0.0",
   "application": "22.0.0.0",
   "idRanges": [
     {
-      "from": 50750,
-      "to": 50799
+      "from": 50250,
+      "to": 50299
     }
   ],
   "features": [

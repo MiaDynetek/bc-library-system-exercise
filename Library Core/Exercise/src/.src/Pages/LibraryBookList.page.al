@@ -1,11 +1,11 @@
-page 50705 LibraryBookList
+page 50206 LibraryBookList
 {
     PageType = List;
     ApplicationArea = All;
     UsageCategory = Lists;
     SourceTable = "Library";
     Caption = 'Library Books';
-    CardPageId = Library;
+    CardPageId = BookSpecifications;
     DelayedInsert = true;
     
     layout
@@ -18,9 +18,9 @@ page 50705 LibraryBookList
                 {
                     ToolTip = 'Specifies the value of the Title field.';
                 } 
-                field(Rented; Rec.Rented)
+                field(Status; Rec.Status)
                 {
-                    ToolTip = 'Specifies the value of the Rented field.';
+                    ToolTip = 'Specifies the value of the Status field.';
                 }  
                 field(Author; Rec.Author)
                 {
@@ -51,6 +51,10 @@ page 50705 LibraryBookList
                 field("Rented Count"; Rec."Rented Count")
                 {
                     ToolTip = 'Specifies the value of the Rented Count field.';
+                }
+                field("Grade"; Rec.Grade)
+                {
+                     ToolTip = 'Specifies the value of the Grade field.';
                 }
                 
             }
@@ -125,4 +129,28 @@ page 50705 LibraryBookList
             }
         }
     }
+    trigger OnOpenPage()
+    var
+        books: Record Library;
+        Today: Date;
+        rentedBooks: Record RentedBooks;
+    begin
+        if books.FindSet() then
+        repeat
+            rentedBooks.SetFilter("Book ID", '=%1', books."Book ID");
+            rentedBooks.SetCurrentKey("Date Rented");
+            rentedBooks.Ascending();
+            rentedBooks.FindLast();
+            Today := WorkDate();
+            if books.FindSet() then
+            repeat
+            if rentedBooks."Return Date" < Today  then
+                begin
+                    Message('Overdue');
+                    //Rec.Status.Names.Set(3, 'Overdue');
+                    //TextVar := Rec.Status.Names.Get(Rec.Status.Ordinals.IndexOf(Rec.Status.AsInteger()));
+                end;
+            until books.Next() = 0;
+        until books.Next() = 0;
+    end;
 }

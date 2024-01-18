@@ -1,4 +1,4 @@
-page 50701 Library
+page 50205 BookSpecifications
 {
     PageType = Card;
     ApplicationArea = All;
@@ -39,11 +39,11 @@ page 50701 Library
                         end;
                     end;
                 }
-                field("Rented"; Rec."Rented")
-                {
-                    ApplicationArea = All;
+                // field("Rented"; Rec."Rented")
+                // {
+                //     ApplicationArea = All;
                     
-                }
+                // }
                 field("Series"; Rec."Series")
                 {
                     Lookup = true;
@@ -137,6 +137,15 @@ page 50701 Library
                         Message(TextVar);
                     end;
                 }
+                field("Grade"; Rec.Grade)
+                {
+                    ApplicationArea = All;
+                }
+                field("Grade Justification"; Rec."Grade Justification")
+                {
+                    ApplicationArea = All;
+                    MultiLine = true;
+                }
             }
         }
     }
@@ -149,8 +158,7 @@ page 50701 Library
         // Message(Format(F.GetEnumValueOrdinal(Rec.Status)));
 
         Rec.UpdatePrequelSequel();
-        TextVar := Status.Names.Get(Status.Ordinals.IndexOf(Status.AsInteger()));
-        Message(TextVar);
+       
         // if(Rec."Edit Sequel" = true) then
         // begin
         // libraryBooks.SetFilter("Book ID", '=%1', Rec."Prequel ID");
@@ -181,26 +189,5 @@ page 50701 Library
     // end;
 
 
-    procedure GetOptionNo(Value: Text; FieldRef: FieldRef): Integer
-    var 
-        FieldRefValueVar: Variant;  
-        FieldRefValueInt: Integer; 
-    begin 
-        if (Value = '') and (FieldRef.GetEnumValueName (1) = ' ') then 
-            exit(0);   
-
-        FieldRefValueVar := FieldRef.Value();  
-        FieldRefValueInt := -1; 
-
-        if Evaluate (FieldRef, Value) then 
-        begin 
-            FieldRefValueInt := FieldRef.Value(); 
-            FieldRef.Value(FieldRefValueVar); 
-        end; 
-
-        exit(FieldRefValueInt); 
-    end;
-    var
-        Ref: RecordRef;
-        F: FieldRef;
+    
 }

@@ -1,4 +1,4 @@
-table 50700 Library
+table 50211 Library
 {
     Caption = 'Library';
     DataClassification = ToBeClassified;
@@ -23,7 +23,7 @@ table 50700 Library
         field(40; "Rented"; Boolean)
         {
             Caption = '';
-            // ObsoleteState = Pending;
+            ObsoleteState = Removed;
         }
          field(120; "Series"; Integer)
         {
@@ -94,6 +94,16 @@ table 50700 Library
             Caption = '';
             NotBlank = true;   
         }
+        field(190; "Grade"; Enum Grades)
+        {
+            DataClassification = ToBeClassified;
+        }
+         field(200; "Grade Justification"; Text[1000])
+        {
+            Caption = '';
+            NotBlank = true;  
+        }
+        
     }
     keys
     {
@@ -109,7 +119,7 @@ table 50700 Library
     procedure AddBookSequel()
     var
         newRecord: Record Library;
-        newRentedBook: Page Library;
+        newRentedBook: Page BookSpecifications;
     begin
         newRecord.Init();
         newRecord.Author := Rec.Author;
@@ -172,7 +182,7 @@ table 50700 Library
         newRecord."Book Name" := simpleText;
         newRecord."Book ID" := Rec."Book ID";
         newRecord."Date Rented" := System.Today();
-        newRecord."Book Rented" := Rec.Rented;
+        newRecord."Status" := Rec.Status;
         newRecord.Insert();
         //RentedBook1 := newRecord;
         // newRecord.setContext();

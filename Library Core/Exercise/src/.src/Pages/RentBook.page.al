@@ -1,4 +1,4 @@
-page 50707 RentBook
+page 50209 RentBook
 {
     PageType = Card;
     ApplicationArea = All;
@@ -20,7 +20,7 @@ page 50707 RentBook
                     ToolTip = 'Specifies the value of the Book Name field.';
                     Editable = false;
                 }
-                field("Book Rented"; Rec."Book Rented")
+                field("Status"; Rec."Status")
                 {
                     ToolTip = 'Specifies the value of the Book Rented field. If the value is true, the book is rented, if it is false, the book is not rented.';
                 }
@@ -42,6 +42,15 @@ page 50707 RentBook
                     ToolTip = 'Specifies the value of the Rent ID field.';
                     Visible = false;
                 }
+                field("Return Date"; Rec."Return Date")
+                {
+                    ToolTip = 'Specifies the value of the Date Returned field.';
+                }
+                field("Days Rented"; Rec."Days Rented")
+                {
+                    ToolTip = 'Specifies the value of the Days Rented field.';
+                }
+
             }
         }
     }

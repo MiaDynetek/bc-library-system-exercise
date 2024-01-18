@@ -1,4 +1,4 @@
-table 50705 RentedBooks
+table 50212 RentedBooks
 {
     DataClassification = ToBeClassified;
     Caption = 'Rented Books';
@@ -10,7 +10,7 @@ table 50705 RentedBooks
             DataClassification = ToBeClassified;
             AutoIncrement = true;
         }
-        field(220;"Book Rented"; Boolean)
+        field(220;"Status"; Enum Status)
         {
             DataClassification = ToBeClassified;
             
@@ -40,6 +40,16 @@ table 50705 RentedBooks
         // {
         //     DataClassification = ToBeClassified;
         // }
+        field(270; "Return Date"; Date)
+        {
+            Caption = '';
+            NotBlank = true;  
+        }
+        field(280; "Days Rented"; Integer)
+        {
+            Caption = '';
+            NotBlank = true;  
+        }
     }
     
     keys
@@ -67,7 +77,7 @@ table 50705 RentedBooks
     begin
         libraryBooks.SetFilter("Book ID", '=%1', Rec."Book ID");
         libraryBooks.FindFirst();
-        libraryBooks.Rented := Rec."Book Rented";
+        libraryBooks.Status := Rec.Status;
         libraryBooks."Rented Count" := libraryBooks."Rented Count" + 1;
         libraryBooks.Modify();
     end;
