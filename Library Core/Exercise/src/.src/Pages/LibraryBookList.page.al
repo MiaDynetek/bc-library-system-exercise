@@ -7,7 +7,8 @@ page 50206 LibraryBookList
     Caption = 'Library Books';
     CardPageId = BookSpecifications;
     DelayedInsert = true;
-    
+    Extensible = true;
+
     layout
     {
         area(Content)
@@ -17,11 +18,11 @@ page 50206 LibraryBookList
                 field(Title; Rec.Title)
                 {
                     ToolTip = 'Specifies the value of the Title field.';
-                } 
+                }
                 field(Status; Rec.Status)
                 {
                     ToolTip = 'Specifies the value of the Status field.';
-                }  
+                }
                 field(Author; Rec.Author)
                 {
                     ToolTip = 'Specifies the value of the Author field.';
@@ -54,13 +55,13 @@ page 50206 LibraryBookList
                 }
                 field("Grade"; Rec.Grade)
                 {
-                     ToolTip = 'Specifies the value of the Grade field.';
+                    ToolTip = 'Specifies the value of the Grade field.';
                 }
-                
+
             }
         }
-     
-    } 
+
+    }
 
 
     actions
@@ -76,7 +77,7 @@ page 50206 LibraryBookList
 
                 trigger OnAction()
                 var
-                   LibarayBookMgmt: Codeunit LibarayBookMgmt;
+                    LibarayBookMgmt: Codeunit LibarayBookMgmt;
                 begin
                     LibarayBookMgmt.Run();
                 end;
@@ -84,15 +85,23 @@ page 50206 LibraryBookList
             action("Rent Book")
             {
                 Caption = 'Rent Book';
-                ToolTip = 'Select this action rent out the selected item.';
+                ToolTip = 'Select this action to rent the currently selected book.';
                 ApplicationArea = All;
                 Image = Import;
                 trigger OnAction()
-                var
-                    // rentBook: Record RentedBooks;
-                    // rentBook1: Page RentBook;
                 begin
                     Rec.RentBook();
+                end;
+            }
+            action("Return Book")
+            {
+                Caption = 'Return Book';
+                ToolTip = 'Select this action to return the currently selected book.';
+                ApplicationArea = All;
+                Image = Import;
+                trigger OnAction()
+                begin
+                    Rec.ReturnBook();
                 end;
             }
             action("Display Books Published Within The Last 2 Years")
@@ -104,10 +113,10 @@ page 50206 LibraryBookList
 
                 trigger OnAction()
                 var
-                    // Today: Date;
-                    // TwoYearsAgo: Date;
-                    // NewField: Text[50];
-                    // Library: Record Library;
+                // Today: Date;
+                // TwoYearsAgo: Date;
+                // NewField: Text[50];
+                // Library: Record Library;
                 begin
                     Rec.LastTwoYearsFilter();
                     // Today := WorkDate();
@@ -115,7 +124,7 @@ page 50206 LibraryBookList
                     // Rec.SetFilter("Publication Date", '>%1',TwoYearsAgo);
                 end;
             }
-           
+
             action("Add Book Sequel")
             {
                 Caption = 'Add Book Sequel';
@@ -124,33 +133,79 @@ page 50206 LibraryBookList
                 Image = Import;
                 trigger OnAction()
                 begin
-                    Rec.AddBookSequel(); 
+                    Rec.AddBookSequel();
                 end;
             }
+            
         }
     }
     trigger OnOpenPage()
     var
         books: Record Library;
         Today: Date;
-        rentedBooks: Record RentedBooks;
+        rentedBooks: Record BookTransactions;
     begin
+        
+       // Message('Testing');
+        //books.SetRange(Status, enum::Statuses::Rented);
+        
         if books.FindSet() then
-        repeat
-            rentedBooks.SetFilter("Book ID", '=%1', books."Book ID");
-            rentedBooks.SetCurrentKey("Date Rented");
-            rentedBooks.Ascending();
-            rentedBooks.FindLast();
-            Today := WorkDate();
-            if books.FindSet() then
+
             repeat
-            if rentedBooks."Return Date" < Today  then
-                begin
-                    Message('Overdue');
-                    //Rec.Status.Names.Set(3, 'Overdue');
-                    //TextVar := Rec.Status.Names.Get(Rec.Status.Ordinals.IndexOf(Rec.Status.AsInteger()));
+            if (books.Status <> enum::Statuses::"Pending Grading") and (books.Status <> enum::Statuses::Archived) then
+            begin
+                if (books.Grade = enum::Grades::D) and (books.Status <> enum::Statuses::"Out for repair") then begin
+                    books.Validate(Status, Statuses::"Out for repair");
+                    books.Modify();
+                    Rec.AddLogs(Statuses::"Out for repair");
+                end;
+                // Message(books.Title);
+                if (books."Rented Count" <> 0) and (books.Grade <> enum::Grades::D) then begin
+                    rentedBooks.SetRange("Book ID", books."Book ID");
+                    if rentedBooks.Count() > 0 then 
+                    begin
+                    rentedBooks.SetCurrentKey("Date Rented");
+                    rentedBooks.Ascending();
+                    if rentedBooks.FindFirst() then begin
+                        if rentedBooks."Return Date" < Today() then begin
+                            if rentedBooks.Status = enum::Statuses::Rented then begin
+                                if (rentedBooks."Return Date" <> 0D) and (books.Status <> enum::Statuses::Overdue) then begin
+                                    books.Validate(Status, Statuses::Overdue);
+                                    books.Modify();
+                                    Rec.AddLogs(Statuses::Overdue);
+                                end;
+                            end;
+                                //books.Status := enum::Status::Overdue;
+                            //    Message(books.Title);
+                                //Rec.Status.Names.Set(3, 'Overdue');
+                                //TextVar := Rec.Status.Names.Get(Rec.Status.Ordinals.IndexOf(Rec.Status.AsInteger()));
+                        end;
+                    end;
+                    end;
+                    if (rentedBooks.Count() = 0) and (books.Status <> enum::Statuses::Available) then 
+                    begin
+                        books.Status := enum::Statuses::Available;
+                        books.Modify();
+                        Rec.AddLogs(Statuses::Available);
+                    end;
+                end;
+                if (books."Rented Count" = 0) and (books.Grade <> enum::Grades::D) and (books.Status <> enum::Statuses::Available) then begin
+                    books.Validate(Status, Statuses::Available);
+                    books.Modify();
+                    Rec.AddLogs(Statuses::Available);
+                end;
+                // rentedBooks.Next();
+                //Today := WorkDate();
+                // if books.FindSet() then
+                //     repeat
+                   // Message(books.Title);
+
+                        
+                   // until books.Next() = 0;
+                //rentedBooks.Reset();
                 end;
             until books.Next() = 0;
-        until books.Next() = 0;
+       
+       
     end;
 }

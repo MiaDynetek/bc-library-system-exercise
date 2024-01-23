@@ -130,11 +130,11 @@ page 50205 BookSpecifications
                     ApplicationArea = All;
                     trigger OnValidate()
                     var
-                        S : Enum Status;
+                        S : Enum Statuses;
                         TextVar : Text[50];
                     begin
-                        TextVar := Rec.Status.Names.Get(Rec.Status.Ordinals.IndexOf(Rec.Status.AsInteger()));
-                        Message(TextVar);
+                        // TextVar := Rec.Status.Names.Get(Rec.Status.Ordinals.IndexOf(Rec.Status.AsInteger()));
+                        // Message(TextVar);
                     end;
                 }
                 field("Grade"; Rec.Grade)
@@ -152,7 +152,7 @@ page 50205 BookSpecifications
    
     trigger OnModifyRecord(): Boolean
     Var
-        S : Enum Status;
+        S : Enum Statuses;
         TextVar : Text[50];
     begin
         // Message(Format(F.GetEnumValueOrdinal(Rec.Status)));
@@ -188,6 +188,17 @@ page 50205 BookSpecifications
     //     CurrPage.Caption(SelectLbl + F.Caption());
     // end;
 
-
+    trigger OnClosePage()
+    var
+        newLog: Record BookTransactions;
+    begin
+        newLog.Init();
+        newLog."Book Name" := Rec.Title;
+        newLog."Book ID" := Rec."Book ID";
+        newLog.Validate(Status, Rec.Status);
+        newLog.Grade := Rec.Grade;
+        newLog."Grade Justification" := Rec."Grade Justification";
+        newLog.Insert();
+    end;
     
 }

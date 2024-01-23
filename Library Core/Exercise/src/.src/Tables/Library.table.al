@@ -2,7 +2,7 @@ table 50211 Library
 {
     Caption = 'Library';
     DataClassification = ToBeClassified;
-    
+    Extensible = true;
     fields
     {
         field(10; "Book ID"; Integer)
@@ -89,7 +89,7 @@ table 50211 Library
             NotBlank = true;   
         }
 
-        field(180; "Status"; Enum Status)
+        field(180; "Status"; Enum Statuses)
         {
             Caption = '';
             NotBlank = true;   
@@ -103,7 +103,14 @@ table 50211 Library
             Caption = '';
             NotBlank = true;  
         }
-        
+        field(210; "Rent ID"; Integer)
+        {
+            DataClassification = ToBeClassified;
+        }
+        field(220; "Display Message"; Boolean)
+        {
+            Caption = '';
+        }
     }
     keys
     {
@@ -119,7 +126,7 @@ table 50211 Library
     procedure AddBookSequel()
     var
         newRecord: Record Library;
-        newRentedBook: Page BookSpecifications;
+        newRentedBook: Page AddBookSequel;
     begin
         newRecord.Init();
         newRecord.Author := Rec.Author;
@@ -130,6 +137,8 @@ table 50211 Library
         newRecord.Prequel := Rec.Title;
         newRecord."Prequel ID" := Rec."Book ID";
         newRecord."Edit Sequel" := true;
+        newRecord.Status := enum::Statuses::"Pending Grading";
+        newRecord."Display Message" := true;
         newRecord.Insert();
      
         newRentedBook.SetRecord(newRecord);
@@ -169,37 +178,119 @@ table 50211 Library
         Rec.SetFilter("Publication Date", '>%1',TwoYearsAgo);
     end;
     
-    procedure RentBook() : Record RentedBooks
+    procedure RentBook()
     var
-        
+        bookData: Record Library;
         simpleText: Text[50];
-        newRecord: Record RentedBooks;
+        newRecord: Record BookTransactions;
         newRentedBook: Page RentBook;
+        previousRecord: Record BookTransactions;
     begin
+        // bookData.SetRange("Book ID", Rec."Book ID");
+        // bookData.FindFirst();
+        
+        if (Rec.Status <> enum::Statuses::Available) then begin
+            Message('This book may not currently be rented, please change the book status to Available before attempting to rent again.');
+        end;
+        // previousRecord.SetRange("Book ID", Rec."Book ID");
+        // previousRecord.SetCurrentKey("Date Rented");
+        // previousRecord.Ascending();
+        // previousRecord.FindLast();
+        if (Rec.Status = enum::Statuses::Available) then begin
         simpleText := Rec.Title;
-        // Rec."Book Name" := record.Title;
         newRecord.Init();
         newRecord."Book Name" := simpleText;
         newRecord."Book ID" := Rec."Book ID";
         newRecord."Date Rented" := System.Today();
-        newRecord."Status" := Rec.Status;
+        newRecord."Days Rented" := 1;
+        newRecord."Return Date" := Today() + 1;
+        //Rec.Validate(Status, Statuses::Rented);
+        newRecord.Validate(Status, Status::Rented);
+        //newRecord."Status" := Rec.Status;
+        newRecord.Grade := Rec.Grade;
+        newRecord."Grade Justification" := Rec."Grade Justification";
         newRecord.Insert();
-        //RentedBook1 := newRecord;
-        // newRecord.setContext();
-        //Message(simpleText); 
+        // bookData."Rent ID" := newRecord."Rent ID";
+        // bookData.Modify();
         newRentedBook.SetRecord(newRecord);
         newRentedBook.Run();
-        //."Book Name" := simpleText;  
-       // Rec."Rent ID" := xRec."Rent ID";
-        exit(newRecord); 
-    end;
-    
-    // procedure OpenRentingPage(record: Record Library) : Record Library
-    // var
-    //     simpleText: Text[50];
-    // begin
-    //     simpleText := record.Title;
-    //     Message(simpleText);
+        end;
         
-    // end;
+    end;
+    procedure ReturnBook()
+    var
+        previousRecord: Record BookTransactions;
+        simpleText: Text[50];
+        newRecord: Record BookTransactions;
+        newRentedBook: Page RentBook;
+        book: Record Library;
+        currentRec: Record Library;
+    begin
+        // book.SetRange("Book ID", Rec."Book ID");
+        // book.FindFirst();
+        // currentRec.SetRange("Book ID", Rec."Book ID");
+        // currentRec.FindFirst();
+         if (Rec.Status <> enum::Statuses::Rented) then begin
+             if  (Rec.Status <> enum::Statuses::Overdue) then begin
+            Message('Before attempting to change the status of this book to available, please ensure it is currently marked as rented or overdue.');
+             end;
+        end;
+        previousRecord.SetRange("Book ID", Rec."Book ID");
+        previousRecord.SetCurrentKey("Date Rented");
+        previousRecord.Ascending();
+        previousRecord.FindLast();
+        if (Rec.Status = enum::Statuses::Rented) or (Rec.Status = enum::Statuses::Overdue) then begin
+        simpleText := Rec.Title;
+        newRecord.Init();
+        newRecord."Book Name" := simpleText;
+        newRecord."Book ID" := Rec."Book ID";
+        newRecord."Date Rented" := System.Today();
+        newRecord."Days Rented" := 1;
+        newRecord."Return Date" := Today() + 1;
+        //newRecord.Validate(Status, Status::Available);
+        newRecord.Status := enum::Statuses::"Pending Grading";
+        newRecord."Display Message" := true;
+        //newRecord."Status" := Rec.Status;
+        newRecord."Customer Name" := previousRecord."Customer Name";
+        newRecord.Grade := Rec.Grade;
+        newRecord."Grade Justification" := Rec."Grade Justification";
+        newRecord.Insert();
+        // book."Rent ID" := newRecord."Rent ID";
+        // book.Modify();
+        newRentedBook.SetRecord(newRecord);
+        newRentedBook.Run();
+        
+        end;
+       
+    end;
+    //
+    procedure FilterReceivingRepair()
+
+    begin
+        Rec.SetRange(Status, enum::Statuses::"Out for repair");
+    end;
+    procedure ArchiveBook()
+    var
+
+    begin
+        Rec.Status := enum::Statuses::Archived;
+        Rec.Modify();
+        Message('The book you selected have been set to Archived.');
+        Rec.AddLogs(enum::Statuses::Archived);
+    end;
+
+
+    procedure AddLogs(CurrStatus : enum Statuses)
+    var
+        newLog: Record BookTransactions;
+    begin
+        newLog.Init();
+        newLog."Book Name" := Rec.Title;
+        newLog."Book ID" := Rec."Book ID";
+        newLog.Validate(Status, CurrStatus);
+        newLog.Grade := Rec.Grade;
+        newLog."Grade Justification" := Rec."Grade Justification";
+        newLog.Insert();
+    end;
+ 
 }

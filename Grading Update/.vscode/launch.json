@@ -9,16 +9,14 @@
             "server": "http://bcserver",
             "serverInstance": "BC",
             "authentication": "UserPassword",
-            "startupObjectId": 50206,
+            "startupObjectId": 22,
             "startupObjectType": "Page",
-            "dependencyPublishingOption": "Default",
             "breakOnError": "All",
             "launchBrowser": true,
             "enableLongRunningSqlStatements": true,
             "enableSqlInformationDebugger": true,
             "tenant": "default",
-            "usePublicURLFromServer": true,
-            "schemaUpdateMode": "ForceSync"
+            "usePublicURLFromServer": true
         }
     ]
 }

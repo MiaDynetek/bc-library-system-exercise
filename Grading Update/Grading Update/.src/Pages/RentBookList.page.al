@@ -3,7 +3,7 @@ page 50200 RentBookList
     PageType = List;
     ApplicationArea = All;
     UsageCategory = Lists;
-    SourceTable = "RentedBooks";
+    SourceTable = "BookTransactions";
     Caption = 'Rented Book List';
     CardPageId = RentBook;
     DelayedInsert = true;
@@ -44,4 +44,11 @@ page 50200 RentBookList
         }
      
     } 
+    trigger OnOpenPage()
+    var
+        myInt: Integer;
+    begin
+        Rec.SetFilter(Status,'=%1 | %2',enum::Statuses::Rented,enum::Statuses::Available);
+        //Rec.SetFilter(Status,'=Rented | Available');
+    end;
 }
